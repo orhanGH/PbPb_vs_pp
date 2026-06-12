@@ -1,0 +1,115 @@
+project:
+  name: PbPb_vs_pp
+  description: "pp-versus-PbPb jet classification using EFN, transformer, and Mamba models"
+
+data:
+  # Marvin dataset path
+  root: /lustre/scratch/data/jdearrud_hpc-jewel/phase4/ptmin50
+
+  # Technical folder names in the dataset
+  class0_dir: vac
+  class1_dir: rec
+
+  # Physics names used in reports and plots
+  class0_name: pp
+  class1_name: PbPb
+
+  # Implementation labels
+  label_map:
+    vac: 0
+    rec: 1
+
+  # Dataset subfolders
+  parts_subdir: parts
+  obsvs_subdir: obsvs
+
+input:
+  # Options: obsv, parts, oefn
+  type: obsv
+
+  # Observable-level key.
+  # Options: x, nsubs, eecs, efps
+  observable_key: x
+
+  # Particle-level settings
+  max_particles: 128
+  particle_features:
+    - z
+    - delta_eta
+    - delta_phi
+  sort_by_pt: true
+
+split:
+  seed: 42
+  split_level: file
+  test_size: 0.20
+  n_folds: 4
+  output_dir: outputs/splits
+  split_file: outputs/splits/file_splits.json
+
+training:
+  batch_size: 512
+  epochs: 50
+  learning_rate: 0.001
+  weight_decay: 0.0
+  patience: 10
+  num_workers: 4
+  device: auto
+  use_sample_weights: true
+
+model:
+  # Options: efn, mefn, oefn, bert, roberta, mamba, mlp
+  name: mlp
+
+  # Options: torch, hf
+  backend: torch
+
+  # Common dimensions
+  hidden_dim: 128
+  dropout: 0.10
+
+  # EFN settings
+  latent_dim: 126
+  phi_hidden_dims:
+    - 100
+    - 100
+  f_hidden_dims:
+    - 100
+    - 100
+    - 100
+
+  # MEFN settings
+  moment_order: 3
+
+  # Transformer settings
+  num_hidden_layers: 4
+  num_attention_heads: 4
+  intermediate_size: 256
+
+  # Mamba settings
+  d_state: 16
+  d_conv: 4
+  expand: 2
+
+evaluation:
+  main_metric: roc_auc
+  metrics:
+    - roc_auc
+    - accuracy
+    - precision
+    - recall
+    - f1
+    - bce
+  fixed_signal_efficiencies:
+    - 0.3
+    - 0.5
+    - 0.7
+    - 0.9
+  calibration: true
+
+outputs:
+  root: outputs
+  checkpoints_dir: outputs/checkpoints
+  logs_dir: outputs/logs
+  plots_dir: outputs/plots
+  predictions_dir: outputs/predictions
