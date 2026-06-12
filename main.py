@@ -186,6 +186,7 @@ def build_parser() -> argparse.ArgumentParser:
             "check_obsv",
             "check_parts",
             "summary",
+            "train",
         ],
         help="Action to run.",
     )
@@ -238,7 +239,18 @@ def main() -> None:
     if args.mode == "check_parts":
         run_check_parts(config=config)
         return
+    if args.mode == "train":
+        model_name = config["model"]["name"].lower()
 
+        if model_name in {"bert", "roberta", "mamba"}:
+            from runners import run_hf_training
+            run_hf_training(config)
+            return
+
+        from runners import run_torch_training
+        run_torch_training(config)
+        return
+    
     raise ValueError(f"Unknown mode: {args.mode}")
 
 
