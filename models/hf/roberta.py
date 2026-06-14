@@ -132,4 +132,4 @@ def get_model_summary_fields(config: dict) -> dict:
         "dropout": config.get("dropout", 0.10),
         "activation": config.get("activation", "gelu"),
         "max_particles": config.get("max_particles", 128),
-    }v
+    }
